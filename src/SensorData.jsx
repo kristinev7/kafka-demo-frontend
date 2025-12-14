@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { reduceEachLeadingCommentRange } from "typescript";
 
 const SensorData = () => {
   const [sensors, setSensors] = useState({});
@@ -59,7 +58,7 @@ const SensorData = () => {
             <li key={sensorKey}>
               <strong>{sensorKey}:</strong> {Array.isArray(sensorData) ? `${sensorData.length} readings`: 'Data format error'}
               <ul>
-                {Array.isArray(sensorData) && sensorData.map((reduceEachLeadingCommentRange, index) => (
+                {Array.isArray(sensorData) && sensorData.map((reading, index) => (
                   <li key={`${sensorKey}-${index}`}>
                     Reading {index +1}:
                     {reading.location && <span> Location: {reading.location}</span>}
