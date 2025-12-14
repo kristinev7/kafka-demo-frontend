@@ -129,3 +129,4 @@ The frontend expects the backend to return data in this format:
 
 - [kafka-demo](https://github.com/kristinev7/kafka-demo) - Spring Boot backend with Kafka integration
 
+![img.png](img.png)
