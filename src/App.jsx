@@ -1,5 +1,6 @@
 import "./App.css";
-import SensorData from "./SensorData.jsx";
+import React from "react";
+import Compare from "./Compare";
 
 export default function App() {
   return (
@@ -8,7 +9,7 @@ export default function App() {
         <h1>Kafka Sensor Dashboard</h1>
       </header>
       <main>
-        <SensorData />
+        <Compare />
       </main>
     </div>
   );
