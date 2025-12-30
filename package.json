@@ -21,6 +21,8 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "recharts": "^2.15.3"
+    "@stomp/stompjs": "^7.2.1",
+    "recharts": "^2.15.3",
+    "sockjs-client": "^1.6.1"
   }
 }

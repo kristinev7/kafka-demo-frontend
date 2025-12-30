@@ -66,22 +66,23 @@ const PollingView = () => {
         const elapsed = Math.round(performance.now() - start);
         if (!cancelled) setLastFetchMs(elapsed);
 
+        //error handling for res
         if (!res.ok) {
           const raw = await res.text().catch(() => "");
           throw new Error(`HTTP ${res.status}: ${raw || "no details"}`);
         }
-
+        //converts res to Javascript object
         const json = (await res.json()) as ReadingsByLocation;
 
-        // Only apply update if snapshot changed
+        //entire snapshot into a string for comparison
         const hash = JSON.stringify(json || {});
-        //count changes applied
+        //if there are changes, save new snapshot into hash for next comparison
         if (hash !== prevSnapshotHashRef.current) {
           prevSnapshotHashRef.current = hash;
           if (!cancelled) {
-            setReadingsByLocation(json || {});
-            setUpdatesApplied((u) => u + 1);
-            setLastUpdateAt(Date.now());
+            setReadingsByLocation(json || {});//updates sensor data
+            setUpdatesApplied((u) => u + 1); // updates count
+            setLastUpdateAt(Date.now()); //updates timestamp
           }
         }
       } catch (e) {
@@ -90,6 +91,7 @@ const PollingView = () => {
     };
 
     fetchData();
+    //start polling
     const id = window.setInterval(fetchData, pollMs);
 
     return () => {

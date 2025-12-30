@@ -63,7 +63,7 @@ const SensorData = () => {
             </div>
             {/*Render selected View*/}
             {view === "charts" ? (
-                <DisplaySensorData sensors={sensors} />
+                <DisplaySensorData readingsByLocation={sensors} />
             ) : (
                 <RawSensorData sensors={sensors} />
             )}

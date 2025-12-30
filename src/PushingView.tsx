@@ -202,7 +202,7 @@ const PushingView: React.FC = () => {
 
       {/* Chart */}
       <div style={{ marginTop: 12 }}>
-        <DisplaySensorData sensors={sensors} />
+        <DisplaySensorData readingsByLocation={sensors} />
       </div>
     </div>
   );
