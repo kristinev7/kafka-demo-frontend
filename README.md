@@ -1,37 +1,146 @@
-# Kafka Sensor Dashboard - Frontend
+# Kafka Sensor Dashboard - Polling vs Pushing Frontend
 
-A React frontend for visualizing real-time sensor data streamed through Apache Kafka.
+A React-based frontend that **compares HTTP polling and WebSocket pushing** for real-time sensor data streamed through Apache Kafka.
 
+This project is designed to visually and practically demonstrate the **differences between request-based polling and event-driven pushing** when building real-time dashboards.
+
+---
 ## Overview
 
-This dashboard connects to the [kafka-demo](https://github.com/kristinev7/kafka-demo) Spring Boot backend to display sensor readings (temperature, humidity, pressure) in real-time. Data is fetched via REST API with automatic polling every 5 seconds.
+This dashboard connects to the [kafka-demo](https://github.com/kristinev7/kafka-demo) Spring Boot backend to display sensor readings (temperature, humidity, pressure) in real-time. 
 
+The frontend intentionally implements **two different data delivery strategies**:
+
+1. **Polling View (Top)** – Periodic REST API requests
+2. **Pushing View (Bottom)** – Real-time WebSocket updates
+
+Both views display the same underlying Kafka-generated data, but differ in **how updates are delivered**, **how often**, and **how fresh the data is**.
+
+---
+## What This Project Demonstrates
+
+### Polling (Request-Based)
+- The client **asks the server for updates at a fixed interval**
+- Uses REST: `GET /api/sensors/latest`
+- May fetch unchanged data
+- Update frequency depends on the polling interval
+- Simpler to implement, but less efficient at scale
+
+### Pushing (Event-Driven)
+- The server **pushes new data immediately** when it becomes available
+- Uses WebSockets (STOMP over SockJS)
+- No unnecessary requests
+- Lower latency and fresher data
+- More scalable for real-time systems
+
+This project allows users to **observe and measure these differences directly**.
+
+---
 ## Tech Stack
-
 - **React 18** - UI library
 - **Vite 5** - Build tool with Hot Module Reloading (HMR)
 - **Recharts** - Charting library for data visualization
+- **WebSockets (STOMP + SockJS)** – Live data pushing
 
+---
 ## Project Structure
 
 ```
 kafka-demo-frontend/
 ├── src/
-│   ├── App.jsx           # Main application component
-│   ├── App.css           # Application styles
-│   ├── SensorData.jsx    # Sensor data display component
-│   └── index.jsx         # Application entry point
-├── vite.config.js        # Vite configuration with API proxy
-└── package.json          # Dependencies and scripts
+│   ├── App.jsx                 # Application shell and layout
+│   ├── App.css                 # Global application styles
+│   ├── Compare.tsx             # Renders Polling (top) and Pushing (bottom) views
+│   ├── PollingView.tsx         # REST-based polling implementation with stats
+│   ├── PushingView.tsx         # WebSocket-based pushing implementation with stats
+│   ├── DisplaySensorData.tsx   # Shared chart component (Recharts)
+│   ├── SensorData.jsx          # Legacy single-view polling component
+│   ├── RawSensorData.jsx       # Optional raw JSON-style sensor data display
+│   ├── main.jsx                # Application entry point
+│   └── index.css               # Base styles (if applicable)
+│
+├── vite.config.js              # Vite configuration with API & WebSocket proxy
+├── package.json                # Project dependencies and scripts
+├── package-lock.json           # Dependency lock file
+└── README.md                   # Project documentation
+
 ```
 
-## Prerequisites
+---
+## Application Layout
 
+The default page renders both approaches **in a vertical comparison**:
+
+### 1. Polling View (Top)
+
+The polling view periodically fetches snapshots from the backend.
+
+**How it works**
+- Calls `GET /api/sensors/latest`
+- Polls at a configurable interval (default: 5 seconds)
+- Applies updates only when data changes
+
+**Statistics shown**
+- Requests made
+- Requests per minute
+- Snapshot updates applied
+- Latest reading age
+- Last fetch duration
+
+This highlights how polling can:
+- Generate repeated requests
+- Introduce delay between updates
+- Fetch unchanged data
+
+---
+### 2. Pushing View (Bottom – WebSocket)
+
+The pushing view subscribes to live updates from the backend.
+
+**How it works**
+- Connects to `/ws` using WebSockets
+- Subscribes to location-based topics
+- Receives updates immediately when Kafka produces new data
+
+**Statistics shown**
+- Messages received
+- Updates applied
+- Messages per second (smoothed)
+- Latest reading age
+- Connection status
+
+This demonstrates:
+- Near real-time data delivery
+- Lower latency
+- No unnecessary network requests
+
+---
+## API Expectations
+
+The frontend expects sensor data in the following format:
+
+```json
+{
+  "location-1": [
+    {
+      "temperature": 23.5,
+      "humidity": 65.2,
+      "pressure": 1013.25,
+      "locationId": "location-1",
+      "locationType": "INDOOR",
+      "timestamp": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+---
+## Getting Started
+
+## Prerequisites  
 - Node.js 18+
 - npm or yarn
 - Backend server running on `http://localhost:8080`
-
-## Getting Started
 
 ### 1. Install Dependencies
 
@@ -93,40 +202,24 @@ proxy: {
 }
 ```
 
-## Components
+---
+## Why Polling vs Pushing Matters
 
-### App.jsx
-Main application wrapper with header displaying "Kafka Sensor Dashboard".
+Polling and pushing represent two fundamentally different approaches to real-time data delivery.
 
-### SensorData.jsx
-Fetches and displays sensor data:
-- Calls `GET /api/sensors/latest` on mount
-- Polls for updates every 5 seconds
-- Displays readings grouped by sensor ID
-- Shows temperature, location, and timestamp for each reading
+This project shows:
+- Latency differences
+- Network efficiency
+- Data freshness
+- Scalability trade-offs  
 
-## API Integration
-
-The frontend expects the backend to return data in this format:
-
-```json
-{
-  "sensor-001": [
-    {
-      "sensorId": "sensor-001",
-      "temperature": 23.5,
-      "humidity": 65.2,
-      "pressure": 1013.25,
-      "location": "Building A",
-      "timestamp": "2024-01-15T10:30:00Z"
-    }
-  ],
-  "sensor-002": [...]
-}
-```
+By showing both approaches in the same application, the differences become immediately visible and measurable.
 
 ## Related Projects
 
 - [kafka-demo](https://github.com/kristinev7/kafka-demo) - Spring Boot backend with Kafka integration
 
-![img.png](img.png)
+![pollingview.png](pollingview.png)
+---
+
+![pushingview.png](pushingview.png)
